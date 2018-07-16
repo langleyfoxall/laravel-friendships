@@ -237,9 +237,9 @@ trait Friendable
      * @param string $groupSlug
      *
      */
-    public function getPendingFriendships($groupSlug = '')
+    public function getPendingFriendships($perPage = 0, $groupSlug = '')
     {
-        return $this->findFriendships(Status::PENDING, $groupSlug)->get();
+        return $this->getOrPaginate($this->findFriendships(Status::PENDING, $groupSlug), $perPage);
     }
 
     /**
@@ -403,7 +403,7 @@ trait Friendable
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    private function findFriendships($status = null, $groupSlug = '')
+    public function findFriendships($status = null, $groupSlug = '')
     {
 
         $query = Friendship::where(function ($query) {
