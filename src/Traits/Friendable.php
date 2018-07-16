@@ -294,9 +294,9 @@ trait Friendable
     /**
      * @return \Illuminate\Database\Eloquent\Collection|Friendship[]
      */
-    public function getFriendRequests()
+    public function getFriendRequests($perPage = 0)
     {
-        return Friendship::whereRecipient($this)->whereStatus(Status::PENDING)->get();
+        return $this->getOrPaginate($this->getFriendRequestsQueryBuilder(), $perPage);
     }
 
     /**
@@ -437,6 +437,22 @@ trait Friendable
         $senders     = $friendships->pluck('sender_id')->all();
 
         return $this->where('id', '!=', $this->getKey())->whereIn('id', array_merge($recipients, $senders));
+    }
+
+    /**
+     * Get the query builder of the 'friend' model
+     *
+     * @param string $groupSlug
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    private function getFriendRequestsQueryBuilder()
+    {
+
+        $friendships = Friendship::whereRecipient($this)->whereStatus(Status::PENDING)->get(['sender_id']);
+        $senders = $friendships->pluck('sender_id')->all();
+
+        return $this->where('id', '!=', $this->getKey())->whereIn('id', $senders);
     }
     
     /**
