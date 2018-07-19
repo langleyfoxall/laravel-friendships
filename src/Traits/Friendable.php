@@ -304,7 +304,7 @@ trait Friendable
      */
     public function getBlockedFriends($perPage = 0)
     {
-        return $this->getOrPaginate($this->getFriendRequestsQueryBuilder(Status::BLOCKED), $perPage);
+        return $this->getOrPaginate($this->getBlockedFriendsQueryBuilder(), $perPage);
     }
 
     /**
@@ -454,13 +454,22 @@ trait Friendable
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    private function getFriendRequestsQueryBuilder($status = Status::PENDING)
+    private function getFriendRequestsQueryBuilder()
     {
 
         $friendships = Friendship::whereRecipient($this)->whereStatus(Status::PENDING)->get(['sender_id']);
         $senders = $friendships->pluck('sender_id')->all();
 
         return $this->where('id', '!=', $this->getKey())->whereIn('id', $senders);
+    }
+
+    private function getBlockedFriendsQueryBuilder()
+    {
+
+        $friendships = Friendship::whereSender($this)->whereStatus(Status::BLOCKED)->get(['recipient_id']);
+        $recipients = $friendships->pluck('recipient_id')->all();
+
+        return $this->where('id', '!=', $this->getKey())->whereIn('id', $recipients);
     }
     
     /**
