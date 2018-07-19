@@ -300,6 +300,14 @@ trait Friendable
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Collection|Friendship[]
+     */
+    public function getBlockedFriends($perPage = 0)
+    {
+        return $this->getOrPaginate($this->getFriendRequestsQueryBuilder(Status::BLOCKED), $perPage);
+    }
+
+    /**
      * This method will not return Friendship models
      * It will return the 'friends' models. ex: App\User
      *
@@ -446,7 +454,7 @@ trait Friendable
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    private function getFriendRequestsQueryBuilder()
+    private function getFriendRequestsQueryBuilder($status = Status::PENDING)
     {
 
         $friendships = Friendship::whereRecipient($this)->whereStatus(Status::PENDING)->get(['sender_id']);
